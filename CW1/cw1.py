@@ -56,14 +56,59 @@ def steady_state_sol(N):
 
 # Q1e code
 
-def solve_tridiagonal(A, b):
-    """Solve the tridiagonal system Ax = b for x
+# def solve_tridiagonal(A, b):
+#     """Solve the tridiagonal system Ax = b for x
     
-    :param A: the matrix A
-    :param b: the vector b
+#     :param A: the matrix A
+#     :param b: the vector b
 
-    :return x: the solution to the system
-    """
+#     :return x: the solution to the system
+#     """
 
 
 def implicit_scheme(k, N, t):
+    """
+    This function takes implements the explicit discretisation scheme and returns the numerical
+    solution at time t
+
+    :param k: magnitude of the time step
+    :param N: number of grid points in the X-direction
+    :param t: time level to calculate the numerical solution at
+
+    :return U: the numerical solution at time t
+    """
+    h = 1/(N-1) # Initiate the horizontal step length
+    r = k / h**2 # Create the variable r
+    M = int(t/k) # Obtain the number of iterations
+    U = np.linspace(0, 1, N) # Initiate the initial array
+    U = 2 - 1.5*U + np.sin(np.pi * U) # Set up the initial array at time 0
+    diagonals = [-np.sqrt(2) * r, 1+2*np.sqrt(2) * r, -np.sqrt(2) * r] # Set up the diagonals of the matrix
+    A = scipy.sparse.diags(diagonals, offsets = (-1, 0, 1), shape = [N, N]) # Create a triadiagonal matrix
+    A = A.toarray() # Convert to an array
+    A[0,0], A[0,1], A[N-1, N-1], A[N-1, N-2] = 1, 0, 1, 0 # Changing specfic entries of the matrix
+    for i in range(M):
+        U = scipy.sparse.linalg.spsolve(A, U)
+    return U
+
+def CN_scheme(k, N, t):
+    """
+    This function takes implements the explicit discretisation scheme and returns the numerical
+    solution at time t
+
+    :param k: magnitude of the time step
+    :param N: number of grid points in the X-direction
+    :param t: time level to calculate the numerical solution at
+
+    :return U: the numerical solution at time t
+    """
+    h = 1/(N-1) # Initiate the horizontal step length
+    r = k / h**2 # Create the variable r
+    M = int(t/k) # Obtain the number of iterations
+    U = np.linspace(0, 1, N) # Initiate the initial array
+    U = 2 - 1.5*U + np.sin(np.pi * U) # Set up the initial array at time 0
+    diagonals = [-np.sqrt(2) * r, 1+2*np.sqrt(2) * r, -np.sqrt(2) * r] # Set up the diagonals of the matrix
+    A = scipy.sparse.diags(diagonals, offsets = (-1, 0, 1), shape = [N, N]) # Create a triadiagonal matrix
+    A = A.toarray() # Convert to an array
+    A[0,0], A[0,1], A[N-1, N-1], A[N-1, N-2] = 1, 0, 1, 0 # Changing specfic entries of the matrix
+    for i in range(M):
+        U = scipy.sparse.linalg.spsolve(A, U)
