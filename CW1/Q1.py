@@ -19,8 +19,7 @@ def explicit_scheme(k, N, t):
     U = np.linspace(0, 1, N) # Initiate the initial array
     U = 2 - 1.5*U + np.sin(np.pi * U) # Set up the initial array at time 0
     diagonals = [np.sqrt(2) * r, 1-2*np.sqrt(2) * r, np.sqrt(2) * r] # Set up the diagonals of the matrix
-    A = scipy.sparse.diags(diagonals, offsets = (-1, 0, 1), shape = [N, N]) # Create a triadiagonal matrix
-    A = A.toarray() # Convert to an array
+    A = scipy.sparse.diags(diagonals, offsets = (-1, 0, 1), shape = [N, N], format="csr") # Create a triadiagonal matrix
     A[0,0], A[0,1], A[N-1, N-1], A[N-1, N-2] = 1, 0, 1, 0 # Changing specfic entries of the matrix
     for i in range(M):
         U = A @ U
@@ -31,13 +30,13 @@ def steady_state_sol(N):
     return (-3/2) * x + 2
 
 # Q1c Plots
-# Times = np.array([0.001, 0.01, 0.1, 1])
-# N = 11
-# x = np.linspace(0, 1, N)
-# steady = steady_state_sol(x)
-# for i in Times:
-#     plt.plot(x, explicit_scheme(0.001, N, i) - steady)
-# plt.show()
+Times = np.array([0.001, 0.01, 0.1, 1])
+N = 11
+x = np.linspace(0, 1, N)
+steady = steady_state_sol(N)
+for i in Times:
+    plt.plot(x, explicit_scheme(0.001, N, i) - steady)
+plt.show()
 
 
 # Q1d Plots
@@ -68,7 +67,7 @@ def steady_state_sol(N):
 
 def implicit_scheme(k, N, t):
     """
-    This function takes implements the explicit discretisation scheme and returns the numerical
+    This function takes implements the implicit discretisation scheme and returns the numerical
     solution at time t
 
     :param k: magnitude of the time step
@@ -83,8 +82,7 @@ def implicit_scheme(k, N, t):
     U = np.linspace(0, 1, N) # Initiate the initial array
     U = 2 - 1.5*U + np.sin(np.pi * U) # Set up the initial array at time 0
     diagonals = [-np.sqrt(2) * r, 1+2*np.sqrt(2) * r, -np.sqrt(2) * r] # Set up the diagonals of the matrix
-    A = scipy.sparse.diags(diagonals, offsets = (-1, 0, 1), shape = [N, N]) # Create a triadiagonal matrix
-    A = A.toarray() # Convert to an array
+    A = scipy.sparse.diags(diagonals, offsets = (-1, 0, 1), shape = [N, N], format="csr") # Create a triadiagonal matrix
     A[0,0], A[0,1], A[N-1, N-1], A[N-1, N-2] = 1, 0, 1, 0 # Changing specfic entries of the matrix
     for i in range(M):
         U = scipy.sparse.linalg.spsolve(A, U)
@@ -92,7 +90,7 @@ def implicit_scheme(k, N, t):
 
 def CN_scheme(k, N, t):
     """
-    This function takes implements the explicit discretisation scheme and returns the numerical
+    This function takes implements the Crank-Nicholson discretisation scheme and returns the numerical
     solution at time t
 
     :param k: magnitude of the time step
@@ -106,9 +104,12 @@ def CN_scheme(k, N, t):
     M = int(t/k) # Obtain the number of iterations
     U = np.linspace(0, 1, N) # Initiate the initial array
     U = 2 - 1.5*U + np.sin(np.pi * U) # Set up the initial array at time 0
-    diagonals = [-np.sqrt(2) * r, 1+2*np.sqrt(2) * r, -np.sqrt(2) * r] # Set up the diagonals of the matrix
-    A = scipy.sparse.diags(diagonals, offsets = (-1, 0, 1), shape = [N, N]) # Create a triadiagonal matrix
-    A = A.toarray() # Convert to an array
+    A_diagonals = [-r/np.sqrt(2), 1+np.sqrt(2)*r, -r/np.sqrt(2)] # Set up the diagonals of the matrix
+    B_diagonals = [r/np.sqrt(2), 1-np.sqrt(2)*r, r/np.sqrt(2)]
+    A = scipy.sparse.diags(A_diagonals, offsets = (-1, 0, 1), shape = [N, N], format="csr") # Create a triadiagonal matrix
+    B = scipy.sparse.diags(B_diagonals, offsets = (-1, 0, 1), shape = [N, N], format="csr")
     A[0,0], A[0,1], A[N-1, N-1], A[N-1, N-2] = 1, 0, 1, 0 # Changing specfic entries of the matrix
+    B[0,0], B[0,1], B[N-1, N-1], B[N-1, N-2] = 1, 0, 1, 0
     for i in range(M):
-        U = scipy.sparse.linalg.spsolve(A, U)
+        U = scipy.sparse.linalg.spsolve(A, B @ U)
+    return U
