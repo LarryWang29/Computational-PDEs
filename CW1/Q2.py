@@ -38,7 +38,7 @@ def Q2_discretisation_scheme(epsilon, N):
     return U
 
 x = np.linspace(0,1,1001)
-plt.plot(np.linspace(0,1,1001), Q2_discretisation_scheme(0.001, 1001))
+plt.plot(np.linspace(0,1,101), Q2_discretisation_scheme(0.01, 101))
 plt.plot(x, x-1)
 plt.plot(x, x-1/2)
 plt.show()

@@ -31,11 +31,11 @@ def steady_state_sol(N):
 
 # Q1c Plots
 Times = np.array([0.001, 0.01, 0.1, 1])
-N = 11
+N = 51
 x = np.linspace(0, 1, N)
 steady = steady_state_sol(N)
 for i in Times:
-    plt.plot(x, explicit_scheme(0.001, N, i) - steady)
+    plt.plot(x, explicit_scheme(0.0001, N, i) - steady)
 plt.show()
 
 
